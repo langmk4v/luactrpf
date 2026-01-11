@@ -11,8 +11,11 @@ std::string_view Token::get_strview() {
   if (this->is(TokenKind::Keyword)) return Lexer::get_view_of(this->kwd);
 
   if (this->is(TokenKind::Punctuator)) {
-    if (this->punct != TokPunctuators::_)
+    if (this->punct != TokPunctuators::_) {
+      if (this->is(TokPunctuators::Bracket))
+        return Lexer::get_view_of(this->bracket, this->is_brac_open);
       return Lexer::get_view_of(this->punct);
+    }
     else if (this->op != TokOperators::_)
       return Lexer::get_view_of(this->op);
   }

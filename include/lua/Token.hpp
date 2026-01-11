@@ -26,7 +26,7 @@ enum class TokenLiterals {
   U32,  // hex or bin or `U
   U64,  // hex or bin or `UL
 
-  Double, // (f or F)?
+  Float, // (f or F)?
 
   String,
   StringEmpty,

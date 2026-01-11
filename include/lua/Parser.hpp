@@ -4,11 +4,9 @@
 #include <string>
 
 #include "AST.hpp"
-
 #include "Errors.hpp"
-#include "SourceFile.hpp"
-
 #include "Logger.hpp"
+#include "SourceFile.hpp"
 
 namespace CTRPluginFramework::lua {
 
@@ -23,7 +21,7 @@ class Parser {
 
   Token *cur;
 
-public:
+ public:
   Parser(SourceFile *source) : source(source), cur(source->token) {}
 
   bool is_end() const { return cur->is_eof(); }
@@ -83,13 +81,41 @@ public:
     if (eat(TokenKind::Literal)) {
       auto val = new ast::Value(tok);
 
-      switch (tok->literal) { case TokenLiterals::I32: }
+      Object *obj = nullptr;
+
+      switch (tok->literal) {
+        case TokenLiterals::I32:
+          obj = new Object(TypeKind::I32);
+          obj->v_i32 = tok->v_i32;
+          break;
+
+        case TokenLiterals::U32:
+          obj = new Object(TypeKind::U32);
+          obj->v_u32 = tok->v_u32;
+          break;
+
+        case TokenLiterals::Float:
+          obj = new Object(TypeKind::I32);
+          obj->v_float = tok->v_float;
+          break;
+
+        case TokenLiterals::String:
+          obj = new Object(TypeKind::Str);
+          obj->v_str = tok->v_str;
+          break;
+
+        default:
+          alert;
+          Logger::Emit(Utils::Format("%d", static_cast<int>(tok->literal)));
+          break;
+      }
+
+      val->obj = obj;
 
       return val;
     }
 
-    if (eat(TokenKind::Identifier))
-      return new ast::Variable(tok);
+    if (eat(TokenKind::Identifier)) return new ast::Variable(tok);
 
     Logger::Emit(
         Utils::Format("cur=%p,kind=%d,str=", cur, static_cast<int>(cur->kind)) +
@@ -100,14 +126,12 @@ public:
 
   auto p_primary() -> Expr * {
     auto x = p_factor();
-    if (!x)
-      return nullptr;
+    if (!x) return nullptr;
 
     if (auto B = cur; eat_open_of(TokBrackets::Normal)) {
       auto cf = new ast::CallFunc(x, B);
 
-      if (eat_close_of(TokBrackets::Normal))
-        return cf;
+      if (eat_close_of(TokBrackets::Normal)) return cf;
 
       do {
         if (auto arg = p_expr())
@@ -116,8 +140,7 @@ public:
           return (delete cf), nullptr;
       } while (eat(TokPunctuators::Comma));
 
-      if (!expect_close_of(TokBrackets::Normal))
-        return (delete cf), nullptr;
+      if (!expect_close_of(TokBrackets::Normal)) return (delete cf), nullptr;
 
       return cf;
     }
@@ -129,8 +152,7 @@ public:
 
   Expr *p_add() {
     auto x = p_primary();
-    if (!x)
-      return nullptr;
+    if (!x) return nullptr;
 
     while (!is_end()) {
       auto op = cur;
@@ -153,8 +175,7 @@ public:
 
   Expr *p_shift() {
     auto x = p_add();
-    if (!x)
-      return nullptr;
+    if (!x) return nullptr;
 
     while (!is_end()) {
       auto op = cur;
@@ -181,14 +202,13 @@ public:
 
   Expr *p_bit_and() {
     auto x = p_shift();
-    if (!x)
-      return nullptr;
+    if (!x) return nullptr;
 
     while (!is_end()) {
       auto op = cur;
       if (eat(TokOperators::BitAnd)) {
         if (auto y = p_shift())
-          x = ast::Terms::make(ast::ExprKind::BitAnd, op, x, p_shift());
+          x = ast::Terms::make(ast::ExprKind::BitAnd, op, x, y);
         else
           return (delete x), nullptr;
       } else
@@ -232,13 +252,11 @@ public:
         return true;
       }
       if (auto tok = cur; eat(Kwd::Elseif)) {
-        if (!(ifs->elseif = p_ifs(tok)))
-          return false;
+        if (!(ifs->elseif = p_ifs(tok))) return false;
         return true;
       }
       if (auto elsetok = cur; eat(Kwd::Else)) {
-        if (!(ifs->else_body = p_ifs_else(elsetok)))
-          return false;
+        if (!(ifs->else_body = p_ifs_else(elsetok))) return false;
         return true;
       }
       if (auto x = p_stmt())
@@ -274,7 +292,6 @@ public:
   }
 
   auto p_stmt() -> Stmt * {
-
     auto tok = cur;
 
     if (eat(Kwd::If)) {
@@ -302,15 +319,12 @@ public:
   auto p_function() -> ast::Func * {
     auto decltok = expect(Kwd::Fn);
 
-    if (!decltok)
-      return nullptr;
+    if (!decltok) return nullptr;
 
     auto nametok = expect(TokenKind::Identifier);
-    if (!nametok)
-      return nullptr;
+    if (!nametok) return nullptr;
 
-    if (!expect_open_of(TokBrackets::Normal))
-      return nullptr;
+    if (!expect_open_of(TokBrackets::Normal)) return nullptr;
 
     std::vector<Token *> argnames;
 
@@ -320,8 +334,7 @@ public:
           return nullptr;
       } while (eat(TokPunctuators::Comma));
 
-      if (!expect_close_of(TokBrackets::Normal))
-        return nullptr;
+      if (!expect_close_of(TokBrackets::Normal)) return nullptr;
     }
 
     // TODO
@@ -330,7 +343,6 @@ public:
   }
 
   auto parse(Token *token) -> ast::Program * {
-
     this->cur = token;
 
     auto prg = new ast::Program();
@@ -357,4 +369,4 @@ public:
   }
 };
 
-} // namespace CTRPluginFramework::lua
+}  // namespace CTRPluginFramework::lua

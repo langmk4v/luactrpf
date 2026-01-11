@@ -3,9 +3,8 @@
 #include <vector>
 
 #include "ASTFwd.hpp"
-#include "Token.hpp"
-
 #include "Object.hpp"
+#include "Token.hpp"
 
 namespace CTRPluginFramework::lua::ast {
 
@@ -52,9 +51,15 @@ struct Tree {
   Kind kind;
   Token *token;
 
-  template <typename T> T *as() { return (T *)this; }
+  template <typename T>
+  T *as() {
+    return (T *)this;
+  }
 
-  template <typename T> T const *as() const { return (T const *)this; }
+  template <typename T>
+  T const *as() const {
+    return (T const *)this;
+  }
 
   bool is(Kind k) const { return kind == k; }
 
@@ -62,12 +67,14 @@ struct Tree {
 
   virtual ~Tree() = default;
 
-protected:
+ protected:
   Tree(Kind kind, Token *token) : kind(kind), token(token) {}
 };
 
 struct Expr : public Tree {
   ExprKind kind;
+
+  bool is(ExprKind k) const { return kind == k; }
 
   bool is_terms() const override {
     return ExprKind::Mul <= kind && kind <= ExprKind::LogOr;
@@ -75,7 +82,7 @@ struct Expr : public Tree {
 
   virtual ~Expr() = default;
 
-protected:
+ protected:
   Expr(ExprKind kind, Token *token) : Tree(Kind::Expr, token), kind(kind) {}
 };
 
@@ -86,7 +93,7 @@ struct Stmt : public Tree {
 
   virtual ~Stmt() = default;
 
-protected:
+ protected:
   Stmt(StmtKind k, Token *tok) : Tree(Kind::Stmt, tok), kind(k) {}
 };
 
@@ -107,6 +114,7 @@ struct CallFunc final : public Expr {
   Expr *functor;
   std::vector<Expr *> args;
 
+  ~CallFunc();
   CallFunc(Expr *f, Token *B) : Expr(ExprKind::CallFunc, B), functor(f) {}
 };
 
@@ -140,8 +148,7 @@ struct ExprStatement final : public Stmt {
   Expr *expr;
 
   ~ExprStatement() {
-    if (expr)
-      delete expr;
+    if (expr) delete expr;
   }
 
   ExprStatement(Expr *e) : Stmt(StmtKind::Expr, e->token), expr(e) {}
@@ -199,12 +206,10 @@ struct Program final {
   Program() {}
 
   ~Program() {
-    for (auto x : functions)
-      delete x;
+    for (auto x : functions) delete x;
 
-    for (auto x : codes)
-      delete x;
+    for (auto x : codes) delete x;
   }
 };
 
-} // namespace CTRPluginFramework::lua::ast
+}  // namespace CTRPluginFramework::lua::ast

@@ -13,7 +13,7 @@ enum class TypeKind : u8 {
   Str,
 };
 
-struct TypeInfo {
+struct __attribute__((__packed__)) TypeInfo {
   TypeKind kind;
 
   TypeInfo(TypeKind kind = TypeKind::None)

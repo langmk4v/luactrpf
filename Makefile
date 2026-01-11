@@ -27,7 +27,11 @@ ARCH		:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 FALSEPOSITIVES := -Wno-array-bounds -Wno-stringop-overflow -Wno-stringop-overread
 
-CFLAGS		:=	$(ARCH) -Os -mword-relocations \
+# CFLAGS		:=	$(ARCH) -Os -mword-relocations \
+# 				-fomit-frame-pointer -ffunction-sections -fno-strict-aliasing \
+				$(FALSEPOSITIVES)
+
+CFLAGS		:=	$(ARCH) -O0 -g -mword-relocations \
 				-fomit-frame-pointer -ffunction-sections -fno-strict-aliasing \
 				$(FALSEPOSITIVES)
 
@@ -37,7 +41,9 @@ CFLAGS		+=	$(INCLUDE) -D__3DS__
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -std=gnu++20 -DDEVMODE=$(DEVMODE)
 
 ASFLAGS		:=	$(ARCH)
-LDFLAGS		:= -T $(TOPDIR)/3gx.ld $(ARCH) -Os -Wl,--gc-sections,--strip-discarded,--strip-debug
+
+#LDFLAGS		:= -T $(TOPDIR)/3gx.ld $(ARCH) -Os -Wl,--gc-sections,--strip-discarded,--strip-debug
+LDFLAGS		:= -T $(TOPDIR)/3gx.ld $(ARCH) -O0 -g -Wl,--gc-sections
 
 LIBS		:= -lctrpf -lctru
 LIBDIRS		:= 	$(CTRPFLIB) $(CTRULIB) $(PORTLIBS)
