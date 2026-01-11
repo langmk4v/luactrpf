@@ -3,18 +3,27 @@ addr = 0x33099E50
 KEY_A  = 1
 KEY_DR = 1 << 4
 KEY_DL = 1 << 5
-KEY_L  = 1 << 9
+KEY_DU = 1 << 6
+KEY_DD = 1 << 7
 
 if check_addr(addr) then
-  if is_pressed(KEY_A | KEY_DL) then
-    writef(addr, X - 1.0)
-  end
+  x = readf(addr)
+  z = readf(addr + 8)
+  speed = 3.0
 
   if is_pressed(KEY_A | KEY_DR) then
-    writef(addr, X + 1.0)
+    writef(addr, x + speed)
   end
 
-  if is_pressed(KEY_L) then
-    notify("Hello!")
+  if is_pressed(KEY_A | KEY_DL) then
+    writef(addr, x - speed)
+  end
+
+  if is_pressed(KEY_A | KEY_DU) then
+    writef(addr + 8, z - speed)
+  end
+
+  if is_pressed(KEY_A | KEY_DD) then
+    writef(addr + 8, z + speed)
   end
 end

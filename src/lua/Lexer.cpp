@@ -91,14 +91,21 @@ auto Lexer::lex() -> Token* {
       //
       // Check suffixes
       //
-      else if (this->consume('U'))
+      else if (this->consume('U')) {
         cur->literal = TokenLiterals::U32;
-      else if (this->consume_str("UL"))
+        cur->v_u32 = std::stoul(ptr);
+      }
+      else if (this->consume_str("UL")) {
         cur->literal = TokenLiterals::U64;
-      else if (this->consume_str("LL"))
+        cur->v_u64 = std::stoull(ptr);
+      }
+      else if (this->consume_str("LL")) {
         cur->literal = TokenLiterals::I64;
+        cur->v_i64 = std::stoll(ptr);
+      }
       else {
         cur->literal = TokenLiterals::I32;
+        cur->v_i32 = std::stoi(ptr);
         this->consume('l');
       }
     }

@@ -242,11 +242,15 @@ class ASTEvaluator {
   {
     switch (a.type.kind) {
       case TypeKind::I32:
-        if (b.type.kind == TypeKind::I32) a.v_i32 += b.v_i32;
+        a.v_i32 += b.v_i32;
+        break;
+
+      case TypeKind::U32:
+        a.v_u32 += b.v_u32;
         break;
 
       case TypeKind::Float:
-        if (b.type.kind == TypeKind::Float) a.v_float += b.v_float;
+        a.v_float += b.v_float;
         break;
     }
     return a;
@@ -256,11 +260,15 @@ class ASTEvaluator {
   {
     switch (a.type.kind) {
       case TypeKind::I32:
-        if (b.type.kind == TypeKind::I32) a.v_i32 -= b.v_i32;
+        a.v_i32 -= b.v_i32;
+        break;
+
+      case TypeKind::U32:
+        a.v_u32 -= b.v_u32;
         break;
 
       case TypeKind::Float:
-        if (b.type.kind == TypeKind::Float) a.v_float -= b.v_float;
+        a.v_float -= b.v_float;
         break;
     }
     return a;
@@ -270,10 +278,10 @@ class ASTEvaluator {
   {
     switch (a.type.kind) {
       case TypeKind::I32:
-        if (b.type.kind == TypeKind::I32) a.v_i32 <<= b.v_i32;
+        a.v_i32 <<= b.v_i32;
         break;
       case TypeKind::U32:
-        if (b.type.kind == TypeKind::U32) a.v_u32 <<= b.v_u32;
+        a.v_u32 <<= b.v_u32;
         break;
     }
     return a;
@@ -283,10 +291,10 @@ class ASTEvaluator {
   {
     switch (a.type.kind) {
       case TypeKind::I32:
-        if (b.type.kind == TypeKind::I32) a.v_i32 &= b.v_i32;
+        a.v_i32 &= b.v_i32;
         break;
       case TypeKind::U32:
-        if (b.type.kind == TypeKind::U32) a.v_u32 &= b.v_u32;
+        a.v_u32 &= b.v_u32;
         break;
     }
     return a;
@@ -296,10 +304,10 @@ class ASTEvaluator {
   {
     switch (a.type.kind) {
       case TypeKind::I32:
-        if (b.type.kind == TypeKind::I32) a.v_i32 |= b.v_i32;
+        a.v_i32 |= b.v_i32;
         break;
       case TypeKind::U32:
-        if (b.type.kind == TypeKind::U32) a.v_u32 |= b.v_u32;
+        a.v_u32 |= b.v_u32;
         break;
     }
     return a;
