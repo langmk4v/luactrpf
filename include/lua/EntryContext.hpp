@@ -32,16 +32,16 @@ struct EntryContext {
     this->evaluator.eval(this->source.program);
   }
 
-  EntryContext(std::string const& path)
+  EntryContext(std::string const& path, MenuEntry* e)
     : source(path),
-      evaluator(&source)
+      evaluator(&source, e)
   {
   }
 };
 
 static auto add_entry(PluginMenu& menu, std::string const& path, MenuEntry* e) -> MenuEntry* {
 
-  auto* ctx = new EntryContext(path);
+  auto* ctx = new EntryContext(path, e);
 
   if (!ctx->source.read()) {
     OSD::Notify("failed to read '" + ctx->source.path + "'");
@@ -56,14 +56,6 @@ static auto add_entry(PluginMenu& menu, std::string const& path, MenuEntry* e) -
 
   ctx->parse();
   if (!ctx->source.program) {
-
-    std::string tmp;
-    for (auto tok = ctx->get_token(); !tok->is_eof(); tok = tok->next) {
-      tmp += tok->get_strview();
-      tmp += " ";
-    }
-    Logger::Emit(tmp+"\n");
-
     OSD::Notify(path + ": failed to parse.");
     goto Fail;
   }
@@ -75,7 +67,6 @@ static auto add_entry(PluginMenu& menu, std::string const& path, MenuEntry* e) -
   return e;
 
 Fail:
-
   for(auto&&e:ctx->source.errors)
     Logger::Emit(e->get_emit_message());
 

@@ -5,4 +5,7 @@
 *.3gx
 *.elf
 
+objdump.txt
+*.log
+
 test.*

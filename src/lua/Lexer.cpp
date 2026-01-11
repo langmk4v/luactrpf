@@ -85,7 +85,7 @@ auto Lexer::lex() -> Token* {
         this->consume('f') || this->consume('F');
 
         cur->literal = TokenLiterals::Double;
-        cur->v_dbl = std::atof(ptr);
+        cur->v_float = (float)std::atof(ptr);
       }
 
       //

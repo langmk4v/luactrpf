@@ -160,7 +160,7 @@ struct Token {
     u32 v_u32;
     u64 v_u64 = 0;
 
-    double v_dbl;
+    float v_float;
 
     u32 _v_char_full;
     struct {
