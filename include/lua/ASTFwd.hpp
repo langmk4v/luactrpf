@@ -16,4 +16,6 @@ struct Assign;
 
 struct Func;
 
+struct Program;
+
 }

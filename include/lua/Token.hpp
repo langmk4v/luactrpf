@@ -98,11 +98,18 @@ enum class TokBrackets {
 enum class TokKeywords {
   _,
 
+  True,
+  False,
+
   None,
   I32,
   F32,
 
+  And,
+  Or,
+
   If,
+  Then,
   Else,
   Elseif,
 
@@ -200,8 +207,9 @@ struct Token {
   }
 
   bool is(TokBrackets k, bool is_open) const {
-    return is(TokPunctuators::Bracket) && this->bracket == k &&
-           this->is_brac_open == is_open;
+    return is(TokPunctuators::Bracket)
+          && this->bracket == k
+          && this->is_brac_open == is_open;
   }
 
   bool is(TokKeywords k) const {

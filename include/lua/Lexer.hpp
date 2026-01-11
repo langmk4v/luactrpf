@@ -73,11 +73,18 @@ class Lexer {
   static inline const kind_str_map_t<TokKeywords> g_kwd_str_table[] {
     { TokKeywords::_,         nullptr },
 
+    { TokKeywords::True,      "true"  },
+    { TokKeywords::False,     "false" },
+
     { TokKeywords::None,      "None"      },
     { TokKeywords::I32,       "i32"       },
     { TokKeywords::F32,       "f32"       },
 
+    { TokKeywords::And,       "and"       },
+    { TokKeywords::Or,        "or"        },
+
     { TokKeywords::If,        "if"        },
+    { TokKeywords::Then,      "then"      },
     { TokKeywords::Else,      "else"      },
     { TokKeywords::Elseif,    "elseif"    },
 

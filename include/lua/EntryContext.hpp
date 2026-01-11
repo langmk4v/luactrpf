@@ -1,11 +1,11 @@
 #pragma once
 
-#include <CTRPluginFramework/Menu/MenuEntry.hpp>
-#include <CTRPluginFramework/Menu/MessageBox.hpp>
+#include <CTRPluginFramework/Menu.hpp>
 
 #include "SourceFile.hpp"
 #include "Parser.hpp"
 #include "Eval.hpp"
+#include "Logger.hpp"
 
 namespace CTRPluginFramework::lua {
 
@@ -14,7 +14,7 @@ struct EntryContext {
   ASTEvaluator evaluator;
 
   auto is_parsed() -> bool {
-    return this->source.parsed_tree != nullptr;
+    return source.program != nullptr;
   }
 
   auto get_token() -> Token*
@@ -25,11 +25,11 @@ struct EntryContext {
   }
 
   auto parse() -> void {
-    this->source.parsed_tree = this->source.parser->parse();
+    this->source.program = this->source.parser->parse(this->get_token());
   }
 
   auto eval() -> void {
-    this->evaluator.eval(this->source.parsed_tree);
+    this->evaluator.eval(this->source.program);
   }
 
   EntryContext(std::string const& path)
@@ -39,20 +39,48 @@ struct EntryContext {
   }
 };
 
-static auto make_entry(std::string const& path, MenuEntry* e) -> MenuEntry* {
+static auto add_entry(PluginMenu& menu, std::string const& path, MenuEntry* e) -> MenuEntry* {
 
   auto* ctx = new EntryContext(path);
 
   if (!ctx->source.read()) {
     OSD::Notify("failed to read '" + ctx->source.path + "'");
+    goto Fail;
   }
 
   ctx->lex();
+  if (!ctx->get_token()) {
+    OSD::Notify(path + ": failed to tokenize.");
+    goto Fail;
+  }
+
   ctx->parse();
+  if (!ctx->source.program) {
+
+    std::string tmp;
+    for (auto tok = ctx->get_token(); !tok->is_eof(); tok = tok->next) {
+      tmp += tok->get_strview();
+      tmp += " ";
+    }
+    Logger::Emit(tmp+"\n");
+
+    OSD::Notify(path + ": failed to parse.");
+    goto Fail;
+  }
 
   e->SetArg(ctx);
 
+  menu.Append(e);
+
   return e;
+
+Fail:
+
+  for(auto&&e:ctx->source.errors)
+    Logger::Emit(e->get_emit_message());
+
+  delete ctx;
+  return nullptr;
 }
 
 }

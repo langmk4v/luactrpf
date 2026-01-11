@@ -1,12 +1,16 @@
 #include "CTRPluginFramework.hpp"
 
 #include "lua.hpp"
+#include "lua/Logger.hpp"
 
 namespace CTRPluginFramework {
 
 auto entry_test(MenuEntry* e) -> void {
 
   auto ctx = static_cast<lua::EntryContext*>(e->GetArg());
+
+  if (!ctx)
+    return;
 
   ctx->eval();
 
@@ -30,7 +34,7 @@ auto entry_test(MenuEntry* e) -> void {
 
 auto init_menu(PluginMenu& menu) -> void {
 
-  menu.Append(lua::make_entry("test.zlua", new MenuEntry("test", entry_test)));
+  lua::add_entry(menu, "test.zlua", new MenuEntry("test", entry_test));
 
 }
 
@@ -45,13 +49,21 @@ auto test() -> void {
 }
 
 auto main() -> int {
+  File  logfile("compiling.log", File::CREATE | File::WRITE);
+
+  lua::Logger::SetFile(&logfile);
+  lua::Logger::Emit("----------------------");
+  lua::Logger::Flush();
+
   PluginMenu menu{"CTRPF"};
 
   menu.SynchronizeWithFrame(true);
 
   init_menu(menu);
 
-  return menu.Run();
+  menu.Run();
+
+  return 0;
 }
 
 }  // namespace CTRPluginFramework

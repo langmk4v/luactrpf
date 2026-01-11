@@ -129,7 +129,7 @@ auto Lexer::lex() -> Token* {
       } else {
         while (!this->consume(c)) {
           if (this->is_end()) {
-            Error(begin, "not closed string literal.")();
+            this->source->add_error(Error(line_,column_, "not closed string literal."));
             break;
           }
 
@@ -167,17 +167,19 @@ auto Lexer::lex() -> Token* {
 
       for (auto&& [K, S] : g_bracket_str_table) {
         if (S && this->consume(S[0])) {
-          cur->bracket = K;
-          cur->is_brac_open = false;
-          goto _end_of_find;
-        } else if (S && this->consume(S[1])) {
+          cur->punct = TokPunctuators::Bracket;
           cur->bracket = K;
           cur->is_brac_open = true;
+          goto _end_of_find;
+        } else if (S && this->consume(S[1])) {
+          cur->punct = TokPunctuators::Bracket;
+          cur->bracket = K;
+          cur->is_brac_open = false;
           goto _end_of_find;
         }
       }
 
-      Error(begin, "invalid token")();
+      this->source->add_error(Error(line_,column_,"invalid token"));
 
     _end_of_find:;
     }
@@ -289,4 +291,4 @@ bool Lexer::consume_str(string_view str) {
   return this->match_str(str) && (next(str.length()), true);
 }
 
-}  // namespace CTRPluginFramework::lua
+} // namespace CTRPluginFramework::lua

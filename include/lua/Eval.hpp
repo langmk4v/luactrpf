@@ -15,7 +15,7 @@ public:
   {
   }
 
-  auto eval(ast::Tree* tree) -> void {
+  auto eval(ast::Program* prg) -> void {
 
 
 

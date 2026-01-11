@@ -16,19 +16,21 @@ SourceFile::SourceFile(std::string const& path)
     lexer(new Lexer(this)),
     parser(new Parser(this)),
     token(nullptr),
-    parsed_tree(nullptr)
+    program(nullptr)
 {
 }
 
 SourceFile::~SourceFile() {
   if (this->lexer) delete this->lexer;
   if (this->parser) delete this->parser;
+  if(this->token)delete token;
+  if(this->program) delete program;
 }
 
 bool SourceFile::read() {
 
   if (!this->file.IsOpen()) {
-    (MessageBox("fail"))();
+    // (MessageBox("failed to open path '" + this->path + "'"))();
     return false;
   }
 

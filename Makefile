@@ -33,7 +33,7 @@ CFLAGS		:=	$(ARCH) -Os -mword-relocations \
 
 CFLAGS		+=	$(INCLUDE) -D__3DS__
 
-CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++17 -DDEVMODE=$(DEVMODE)
+CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++20 -DDEVMODE=$(DEVMODE)
 
 ASFLAGS		:=	$(ARCH)
 LDFLAGS		:= -T $(TOPDIR)/3gx.ld $(ARCH) -Os -Wl,--gc-sections,--strip-discarded,--strip-debug
@@ -71,8 +71,20 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L $(dir)/lib)
 #---------------------------------------------------------------------------------
 all: $(BUILD)
 
-#test:
-#	g++ -std=gnu++20 -Iinclude -Wall -Wextra $(wildcard ./src/lua/*.cpp) ./test.cpp -o a.out
+test:
+	g++ \
+		-std=gnu++20 \
+		-fno-rtti -fno-exceptions \
+		-Wall -Wextra \
+		-Iinclude \
+		$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
+		-D_LINUX_TEST_ \
+		test.cpp \
+		src/lua/AST_dtor.cpp \
+		src/lua/Lexer.cpp \
+		src/lua/Token.cpp \
+		src/lua/utf.cpp \
+		-o a.out
 
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
@@ -84,6 +96,14 @@ clean:
 	@rm -fr $(BUILD) $(OUTPUT).3gx $(OUTPUT).elf
 
 re: clean all
+
+cp2emu:
+	cp		\
+			$(OUTPUT).3gx	\
+			/home/langmk4v/.local/share/azahar-emu/sdmc/luma/plugins/0004000000086200/
+	cp	\
+		./test.zlua \
+		/home/langmk4v/.local/share/azahar-emu/sdmc/luma/plugins/0004000000086200/
 
 #---------------------------------------------------------------------------------
 

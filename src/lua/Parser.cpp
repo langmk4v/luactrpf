@@ -3,9 +3,5 @@
 
 namespace CTRPluginFramework::lua {
 
-ast::Tree* Parser::parse() {
-
-  return nullptr;
-}
 
 }

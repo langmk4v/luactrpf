@@ -5,6 +5,7 @@
 
 #include "Token.hpp"
 #include "ASTFwd.hpp"
+#include "Errors.hpp"
 
 namespace CTRPluginFramework::lua {
 
@@ -17,13 +18,19 @@ struct SourceFile {
 
   std::vector<SourceFile*> imports;
 
+  std::vector<Error*> errors;
+
   File file;
 
   Lexer* lexer;
   Parser* parser;
 
   Token* token;
-  ast::Tree* parsed_tree;
+  ast::Program* program;
+
+  auto add_error(Error const& e) -> Error& {
+    return *this->errors.emplace_back(new Error(e));
+  }
 
   auto read() -> bool;
 
